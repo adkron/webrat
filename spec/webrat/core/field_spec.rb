@@ -41,17 +41,22 @@ module Webrat
     end
 
     describe 'matches_value?' do
-      before do
-        @button_field = ButtonField.new(nil, (Webrat::XML.document('<button value="puppies" alt="monkeys">Some Text</button>').search('button').first))
-      end
       it 'should match the content of a tag\s "value" attribute' do
-        @button_field.matches_value?('puppies').should_not be_nil # Matches the "value" attribute
-        @button_field.matches_value?('kittens').should be_nil # Doesn't match a value attribute, alt attribute, or the button's content
-        @button_field.matches_value?('Some Text').should_not be_nil # Matches the button's content
-        @button_field.matches_value?('monkeys').should_not be_nil # Matches the "alt" attribute
-        @button_field.matches_value?('monkeYs').should_not be_nil # Matches without case sensitivity
-        @button_field.matches_value?('Some text').should_not be_nil
-        @button_field.matches_value?('puPpies').should_not be_nil
+        button_field = ButtonField.new(nil, (Webrat::XML.document('<button value="puppies" alt="monkeys">Some Text</button>').search('button').first))
+        button_field.matches_value?('puppies').should_not be_nil # Matches the "value" attribute
+        button_field.matches_value?('kittens').should be_nil # Doesn't match a value attribute, alt attribute, or the button's content
+        button_field.matches_value?('Some Text').should_not be_nil # Matches the button's content
+        button_field.matches_value?('monkeys').should_not be_nil # Matches the "alt" attribute
+        button_field.matches_value?('monkeYs').should_not be_nil # Matches without case sensitivity
+        button_field.matches_value?('Some text').should_not be_nil
+        button_field.matches_value?('puPpies').should_not be_nil
+      end
+    end
+
+    describe 'to_params' do
+      it "should return the button's 'value' property" do
+        button_field = ButtonField.new(nil, (Webrat::XML.document('<button name="manyard" value="puppies" alt="monkeys">Some Text</button>').search('button').first))
+        button_field.to_param.should be_nil
       end
     end
 
