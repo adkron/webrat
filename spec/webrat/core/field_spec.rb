@@ -26,7 +26,7 @@ module Webrat
   end
 
   describe ButtonField do
-    describe "match_text?" do
+    describe "matches_text?" do
       before do
         @button_field = ButtonField.new(nil, (Webrat::XML.document("<button>Some Text</button>").search('button').first))
       end
@@ -40,18 +40,29 @@ module Webrat
       end
     end
 
-     # matches value
-      # matches_value ? matches somthing (& insensitive) 2
-      # matches value matches_text? value
-      # matches_value? matches_alt? value
+    describe 'matches_value?' do
+      before do
+        @button_field = ButtonField.new(nil, (Webrat::XML.document('<button value="puppies" alt="monkeys">Some Text</button>').search('button').first))
+      end
+      it 'should match the content of a tag\s "value" attribute' do
+        @button_field.matches_value?('puppies').should_not be_nil # Matches the "value" attribute
+        @button_field.matches_value?('kittens').should be_nil # Doesn't match a value attribute, alt attribute, or the button's content
+        @button_field.matches_value?('Some Text').should_not be_nil # Matches the button's content
+        @button_field.matches_value?('monkeys').should_not be_nil # Matches the "alt" attribute
+        @button_field.matches_value?('monkeYs').should_not be_nil # Matches without case sensitivity
+        @button_field.matches_value?('Some text').should_not be_nil
+        @button_field.matches_value?('puPpies').should_not be_nil
+      end
+    end
+
     # to param (web parameter)
-      # returns nil if no value match
-      # returns value if value match
+    # returns nil if no value match
+    # returns value if value match
     # default_value
-      # always returns nil
+    # always returns nil
     # click
-      # throws exception if disabled 2
-      # calls set(@element['value']) unless it has a name  2
-      # always submits the form
+    # throws exception if disabled 2
+    # calls set(@element['value']) unless it has a name  2
+    # always submits the form
   end
 end
