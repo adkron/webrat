@@ -4,7 +4,7 @@ require "webrat/core_extensions/nil_to_param"
 
 module Webrat
   class Field #:nodoc:
-    
+
     def self.class_for_element(element)
       if element.name == "input"
         if %w[submit image].include?(element["type"])
@@ -19,13 +19,13 @@ module Webrat
     rescue NameError
      raise "Invalid field element: #{element.inspect}"
     end
-    
+
     attr_reader :value
-    
+
     def initialize(form, element)
       @form     = form
       @element  = element
-      
+
       @value    = default_value
     end
 
@@ -33,20 +33,20 @@ module Webrat
       return nil if labels.empty?
       labels.first.text
     end
-    
+
     def matches_id?(id)
       @element["id"] == id.to_s
     end
-    
+
     def matches_name?(name)
       @element["name"] == name.to_s
     end
-    
+
     def matches_label?(label_text)
       return false if labels.empty?
       labels.any? { |label| label.matches_text?(label_text) }
     end
-    
+
     def matches_alt?(alt)
       @element["alt"] =~ /^\W*#{Regexp.escape(alt.to_s)}/i
     end
@@ -54,16 +54,16 @@ module Webrat
     def disabled?
       @element.attributes.has_key?("disabled") && @element["disabled"] != 'false'
     end
-    
+
     def raise_error_if_disabled
       raise "Cannot interact with disabled form element (#{self})" if disabled?
     end
-        
+
     def to_param
       return nil if disabled?
-      
+
       key_and_value = "#{name}=#{escaped_value}"
-      
+
       if defined?(CGIMethods)
         CGIMethods.parse_query_parameters(key_and_value)
       elsif defined?(ActionController::AbstractRequest)
@@ -72,33 +72,33 @@ module Webrat
         ::Merb::Parse.query(key_and_value)
       end
     end
-    
+
     def set(value)
       @value = value
     end
-    
+
     def unset
       @value = default_value
     end
-    
+
   protected
-  
+
     def id
       @element["id"]
     end
-    
+
     def name
       @element["name"]
     end
-    
+
     def escaped_value
       CGI.escape(@value.to_s)
     end
-    
+
     def labels
       @labels ||= label_elements.map { |element| Label.new(self, element) }
     end
-    
+
     def label_elements
       return @label_elements unless @label_elements.nil?
       @label_elements = []
@@ -118,11 +118,11 @@ module Webrat
 
       @label_elements
     end
-    
+
     def default_value
       @element["value"]
     end
-    
+
     def replace_param_value(params, oval, nval)
       output = Hash.new
       params.each do |key, value|
@@ -139,13 +139,13 @@ module Webrat
       output
     end
   end
-  
+
   class ButtonField < Field #:nodoc:
 
     def matches_text?(text)
       @element.inner_html =~ /#{Regexp.escape(text.to_s)}/i
     end
-    
+
     def matches_value?(value)
       @element["value"] =~ /^\W*#{Regexp.escape(value.to_s)}/i || matches_text?(value) || matches_alt?(value)
     end
@@ -202,7 +202,7 @@ module Webrat
       raise_error_if_disabled
       set(@element["value"] || "on")
     end
-    
+
     def checked?
       @element["checked"] == "checked"
     end
@@ -233,26 +233,26 @@ module Webrat
       return nil if @value.nil?
       super
     end
-    
+
     def choose
       raise_error_if_disabled
       other_options.each do |option|
         option.set(nil)
       end
-      
+
       set(@element["value"] || "on")
     end
-    
+
     def checked?
       @element["checked"] == "checked"
     end
-    
+
   protected
 
     def other_options
       @form.fields.select { |f| f.name == name }
     end
-    
+
     def default_value
       if @element["checked"] == "checked"
         @element["value"] || "on"
@@ -272,7 +272,7 @@ module Webrat
     end
 
   end
-  
+
   class FileField < Field #:nodoc:
 
     attr_accessor :content_type
@@ -289,9 +289,9 @@ module Webrat
         replace_param_value(super, @value, test_uploaded_file)
       end
     end
-    
+
   protected
-  
+
     def test_uploaded_file
       if content_type
         ActionController::TestUploadedFile.new(@value, content_type)
@@ -318,8 +318,8 @@ module Webrat
 
     def default_value
       selected_options = Webrat::XML.css_search(@element, "option[@selected='selected']")
-      selected_options = Webrat::XML.css_search(@element, "option:first") if selected_options.empty? 
-      
+      selected_options = Webrat::XML.css_search(@element, "option:first") if selected_options.empty?
+
       selected_options.map do |option|
         return "" if option.nil?
         option["value"] || option.inner_html
