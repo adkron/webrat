@@ -73,9 +73,9 @@ To install the latest release:
 
     sudo gem install webrat
 
-In your stories/helper.rb:
+In your stories/helper.rb or your test/test_helper.rb
   
-    require "webrat"
+    require 'webrat'
   
 You could also unpack the gem into vendor/plugins.
 
